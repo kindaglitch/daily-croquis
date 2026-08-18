@@ -157,8 +157,15 @@ async function loadPoses(){
    <div class="instruction">${INS[i]}</div><div class="credit"></div>
    <div class="pose-actions"><button class="doneBtn">${S.days[K].poses[i]?"完了 ✓":"描いた"}</button><button class="sourceBtn" disabled>出典</button></div></div>`;
   box.appendChild(el);
-  el.querySelector(".doneBtn").classList.toggle("done",S.days[K].poses[i]);
-  el.querySelector(".doneBtn").onclick=()=>{S.days[K].poses[i]=!S.days[K].poses[i];saveState();renderStats();loadPoses();};
+  const doneBtn=el.querySelector(".doneBtn");
+  doneBtn.classList.toggle("done",S.days[K].poses[i]);
+  doneBtn.onclick=()=>{
+    S.days[K].poses[i]=!S.days[K].poses[i];
+    saveState();
+    renderStats();
+    doneBtn.textContent=S.days[K].poses[i]?"完了 ✓":"描いた";
+    doneBtn.classList.toggle("done",S.days[K].poses[i]);
+  };
   try{
     const q=c.q[i%c.q.length], off=(hash(K+"-"+i)%3)*10;
     const pages=await commonsSearch(q,off);
