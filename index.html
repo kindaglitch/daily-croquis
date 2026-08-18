@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f7f7f3">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Daily Croquis">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Daily Croquis</title>
+<style>
+:root{
+  --bg:#f7f7f3; --card:#ffffff; --ink:#191919; --muted:#6f6f6a;
+  --line:#deded7; --accent:#191919; --soft:#eeeeea;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+}
+.wrap{max-width:980px;margin:0 auto;padding:22px 16px 80px}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
+h1{font-size:30px;line-height:1.05;margin:0 0 6px}
+.sub{color:var(--muted);font-size:14px}
+.badge{background:var(--ink);color:white;border-radius:999px;padding:8px 12px;font-size:13px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.card h2{font-size:17px;margin:0 0 12px}
+.kpi{display:flex;gap:10px;flex-wrap:wrap}
+.kpi .pill{background:var(--soft);border-radius:12px;padding:10px 12px;min-width:110px}
+.pill b{display:block;font-size:20px}
+.pill span{font-size:12px;color:var(--muted)}
+.progress{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin:12px 0 4px}
+.bar{height:100%;background:var(--ink);width:0%}
+.pose-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:680px){.pose-grid{grid-template-columns:1fr 1fr}}
+.pose{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fbfbf8}
+.pose canvas{width:100%;aspect-ratio:3/4;background:white;border-radius:10px;display:block}
+.pose .meta{display:flex;justify-content:space-between;gap:6px;margin-top:8px;font-size:12px;color:var(--muted)}
+.pose button,.btn{
+  border:1px solid var(--line);background:white;color:var(--ink);
+  border-radius:10px;padding:9px 11px;font-weight:600;
+}
+.pose button.done{background:var(--ink);color:white;border-color:var(--ink)}
+.tasks{display:grid;gap:9px}
+.task{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task input{width:22px;height:22px}
+textarea{width:100%;min-height:92px;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn.primary{background:var(--ink);color:white;border-color:var(--ink)}
+.score{display:grid;grid-template-columns:1fr 56px;gap:8px 10px;align-items:center}
+.score input{width:56px;padding:8px;border:1px solid var(--line);border-radius:9px}
+small{color:var(--muted)}
+.history{display:grid;gap:8px;max-height:260px;overflow:auto}
+.hist{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#191919;color:white;padding:10px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+.timer{font-size:42px;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:-1px}
+select{padding:9px;border:1px solid var(--line);border-radius:10px;background:white}
+.footer-note{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Daily Croquis</h1>
+    <div class="sub" id="todayLabel"></div>
+  </div>
+  <div class="badge" id="streakBadge">🔥 0日連続</div>
+</header>
+
+<div class="grid">
+  <main>
+    <section class="card">
+      <h2>今日の進捗</h2>
+      <div class="kpi">
+        <div class="pill"><b id="doneCount">0 / 6</b><span>ポーズ完了</span></div>
+        <div class="pill"><b id="taskCount">0 / 4</b><span>チェック項目</span></div>
+        <div class="pill"><b id="totalDays">0</b><span>練習日数</span></div>
+      </div>
+      <div class="progress"><div class="bar" id="progressBar"></div></div>
+      <small>今日は全部やらなくてもOK。継続を優先。</small>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>今日のポーズ 6枚</h2>
+      <div class="pose-grid" id="poseGrid"></div>
+      <div class="footer-note">
+        ポーズは日付から自動生成され、毎日変わります。30秒→1分→2分→5分の順で、輪郭より「重心・背骨・肩と骨盤・立体」を優先してください。
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>今日のチェック</h2>
+      <div class="tasks" id="tasks"></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>振り返り</h2>
+      <textarea id="note" placeholder="例：肩と骨盤の傾きが同じになりがち。明日は重心を先に取る。"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="saveBtn">今日を保存</button>
+        <button class="btn" id="copyBtn">提出文をコピー</button>
+      </div>
+      <div class="footer-note">
+        「提出文をコピー」→ このチャットに貼り付け → 描いた画像も添付、でOKです。
+      </div>
+    </section>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>クロッキータイマー</h2>
+      <div class="timer" id="timer">01:00</div>
+      <div class="row">
+        <select id="timeSelect">
+          <option value="30">30秒</option>
+          <option value="60" selected>1分</option>
+          <option value="120">2分</option>
+          <option value="300">5分</option>
+        </select>
+        <button class="btn primary" id="startTimer">開始</button>
+        <button class="btn" id="resetTimer">リセット</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>採点基準 / 100点</h2>
+      <div class="score">
+        <label>動き・ジェスチャー <small>/25</small></label><input disabled value="25">
+        <label>比率 <small>/20</small></label><input disabled value="20">
+        <label>立体感 <small>/20</small></label><input disabled value="20">
+        <label>重心・接地 <small>/15</small></label><input disabled value="15">
+        <label>簡略化 <small>/10</small></label><input disabled value="10">
+        <label>線の迷いの少なさ <small>/10</small></label><input disabled value="10">
+      </div>
+      <div class="footer-note">
+        送ってくれた絵はこの6項目で採点します。点数だけでなく「最優先で直す1点」「次回の練習課題」まで返します。
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>履歴</h2>
+      <div class="history" id="history"></div>
+    </section>
+  </aside>
+</div>
+</div>
+<div class="toast" id="toast">保存しました</div>
+
+<script>
+const POSE_COUNT = 6;
+const TASKS = [
+  "ウォームアップを5分した",
+  "輪郭より先に動きの線を取った",
+  "肩と骨盤の傾きを意識した",
+  "最後に1体、資料を閉じて描いた"
+];
+
+const today = new Date();
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const TODAY = ymd(today);
+document.getElementById("todayLabel").textContent =
+  `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+
+function hashCode(s){
+  let h=2166136261>>>0;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); }
+  return h>>>0;
+}
+function rng(seed){
+  let t=seed>>>0;
+  return ()=>{ t += 0x6D2B79F5; let x=t; x=Math.imul(x^(x>>>15),x|1); x^=x+Math.imul(x^(x>>>7),x|61); return ((x^(x>>>14))>>>0)/4294967296; };
+}
+function getState(){
+  return JSON.parse(localStorage.getItem("dailyCroquis") || '{"days":{}}');
+}
+function saveState(s){ localStorage.setItem("dailyCroquis",JSON.stringify(s)); }
+let state=getState();
+if(!state.days[TODAY]) state.days[TODAY]={poses:Array(POSE_COUNT).fill(false),tasks:Array(TASKS.length).fill(false),note:"",saved:false};
+
+function drawPose(canvas, seed){
+  const ctx=canvas.getContext("2d");
+  const dpr=window.devicePixelRatio||1, w=300,h=400;
+  canvas.width=w*dpr; canvas.height=h*dpr; ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  const R=rng(seed);
+  ctx.strokeStyle="#161616"; ctx.lineWidth=5; ctx.lineCap="round"; ctx.lineJoin="round";
+  ctx.fillStyle="#161616";
+
+  const cx=150+(R()-.5)*28, headY=62+(R()-.5)*10;
+  const lean=(R()-.5)*34;
+  const shoulderY=112+(R()-.5)*10, pelvisY=215+(R()-.5)*14;
+  const sx=70+(R()*16), px=48+(R()*16);
+  const shoulderTilt=(R()-.5)*28, pelvisTilt=(R()-.5)*24;
+
+  const head={x:cx+lean*.12,y:headY};
+  const neck={x:cx+lean*.28,y:92};
+  const shoulderL={x:cx-sx/2+lean*.35,y:shoulderY-shoulderTilt/2};
+  const shoulderR={x:cx+sx/2+lean*.35,y:shoulderY+shoulderTilt/2};
+  const pelvisL={x:cx-px/2+lean,y:pelvisY-pelvisTilt/2};
+  const pelvisR={x:cx+px/2+lean,y:pelvisY+pelvisTilt/2};
+  const pelvisC={x:(pelvisL.x+pelvisR.x)/2,y:(pelvisL.y+pelvisR.y)/2};
+
+  function limb(a,b,len1,len2,bend,side){
+    const baseAng=Math.atan2(b.y-a.y,b.x-a.x);
+    const ang1=baseAng + side*(0.35+R()*0.85) + (R()-.5)*.5;
+    const elbow={x:a.x+Math.cos(ang1)*len1,y:a.y+Math.sin(ang1)*len1};
+    const ang2=ang1 + bend*(0.45+R()*1.0);
+    const hand={x:elbow.x+Math.cos(ang2)*len2,y:elbow.y+Math.sin(ang2)*len2};
+    return [a,elbow,hand];
+  }
+  function leg(a,side){
+    const ang1=Math.PI/2 + side*(R()-.5)*.75 + (R()-.5)*.35;
+    const knee={x:a.x+Math.cos(ang1)*78,y:a.y+Math.sin(ang1)*78};
+    const ang2=ang1 + side*(R()-.5)*.65;
+    const foot={x:knee.x+Math.cos(ang2)*78,y:knee.y+Math.sin(ang2)*78};
+    return [a,knee,foot];
+  }
+  const lArm=limb(shoulderL,{x:cx-80,y:170},58,55,(R()>.5?1:-1),-1);
+  const rArm=limb(shoulderR,{x:cx+80,y:170},58,55,(R()>.5?1:-1),1);
+  const lLeg=leg(pelvisL,-1), rLeg=leg(pelvisR,1);
+
+  function line(points){
+    ctx.beginPath(); ctx.moveTo(points[0].x,points[0].y);
+    points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke();
+  }
+  // head
+  ctx.beginPath(); ctx.arc(head.x,head.y,24,0,Math.PI*2); ctx.stroke();
+  // spine
+  line([neck,{x:cx+lean*.62,y:165},pelvisC]);
+  line([shoulderL,shoulderR]); line([pelvisL,pelvisR]);
+  line(lArm); line(rArm); line(lLeg); line(rLeg);
+  // joints
+  [lArm[1],rArm[1],lLeg[1],rLeg[1]].forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill()});
+  // line of action hint
+  ctx.save(); ctx.strokeStyle="#b7b7af"; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+  ctx.beginPath(); ctx.moveTo(head.x,head.y+28); ctx.quadraticCurveTo(cx+lean*.45,160,pelvisC.x,pelvisC.y+105); ctx.stroke();
+  ctx.restore();
+}
+
+const poseGrid=document.getElementById("poseGrid");
+function renderPoses(){
+  poseGrid.innerHTML="";
+  const times=["30秒","30秒","1分","1分","2分","5分"];
+  for(let i=0;i<POSE_COUNT;i++){
+    const div=document.createElement("div"); div.className="pose";
+    const c=document.createElement("canvas");
+    div.appendChild(c);
+    const meta=document.createElement("div"); meta.className="meta";
+    meta.innerHTML=`<span>Pose ${i+1}</span><span>${times[i]}</span>`;
+    div.appendChild(meta);
+    const b=document.createElement("button");
+    b.textContent=state.days[TODAY].poses[i]?"完了 ✓":"描いた";
+    if(state.days[TODAY].poses[i]) b.classList.add("done");
+    b.onclick=()=>{state.days[TODAY].poses[i]=!state.days[TODAY].poses[i];saveState(state);renderAll();};
+    div.appendChild(b);
+    poseGrid.appendChild(div);
+    requestAnimationFrame(()=>drawPose(c,hashCode(TODAY+"-"+i)));
+  }
+}
+function renderTasks(){
+  const el=document.getElementById("tasks"); el.innerHTML="";
+  TASKS.forEach((t,i)=>{
+    const row=document.createElement("label"); row.className="task";
+    const inp=document.createElement("input"); inp.type="checkbox"; inp.checked=state.days[TODAY].tasks[i];
+    inp.onchange=()=>{state.days[TODAY].tasks[i]=inp.checked;saveState(state);renderStats();};
+    const sp=document.createElement("span"); sp.textContent=t;
+    row.append(inp,sp); el.appendChild(row);
+  });
+}
+function calcStreak(){
+  let s=0,d=new Date(today);
+  while(true){
+    const k=ymd(d), rec=state.days[k];
+    if(rec && rec.saved){s++; d.setDate(d.getDate()-1)} else break;
+  }
+  return s;
+}
+function renderStats(){
+  const rec=state.days[TODAY];
+  const pc=rec.poses.filter(Boolean).length, tc=rec.tasks.filter(Boolean).length;
+  document.getElementById("doneCount").textContent=`${pc} / ${POSE_COUNT}`;
+  document.getElementById("taskCount").textContent=`${tc} / ${TASKS.length}`;
+  document.getElementById("totalDays").textContent=Object.values(state.days).filter(x=>x.saved).length;
+  document.getElementById("progressBar").style.width=`${Math.round((pc+tc)/(POSE_COUNT+TASKS.length)*100)}%`;
+  document.getElementById("streakBadge").textContent=`🔥 ${calcStreak()}日連続`;
+}
+function renderHistory(){
+  const el=document.getElementById("history"); el.innerHTML="";
+  const items=Object.entries(state.days).filter(([k,v])=>v.saved).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
+  if(!items.length){el.innerHTML="<small>まだ保存された練習日はありません。</small>";return;}
+  items.forEach(([k,v])=>{
+    const d=document.createElement("div"); d.className="hist";
+    d.innerHTML=`<span>${k}</span><span>${v.poses.filter(Boolean).length}/6 poses</span>`;
+    el.appendChild(d);
+  });
+}
+function renderAll(){renderPoses();renderTasks();renderStats();renderHistory();document.getElementById("note").value=state.days[TODAY].note||"";}
+renderAll();
+
+document.getElementById("note").addEventListener("input",e=>{state.days[TODAY].note=e.target.value;saveState(state)});
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)}
+document.getElementById("saveBtn").onclick=()=>{
+  state.days[TODAY].note=document.getElementById("note").value;
+  state.days[TODAY].saved=true; saveState(state); renderAll(); toast("今日の練習を保存しました");
+};
+document.getElementById("copyBtn").onclick=async()=>{
+  const r=state.days[TODAY];
+  const text=`クロッキー採点お願いします。\n日付: ${TODAY}\n完了ポーズ: ${r.poses.filter(Boolean).length}/6\nチェック: ${r.tasks.filter(Boolean).length}/${TASKS.length}\n振り返り: ${r.note||"なし"}\n\n採点基準：動き25 / 比率20 / 立体感20 / 重心・接地15 / 簡略化10 / 線10。100点満点で、最優先の改善点1つと次回課題もお願いします。`;
+  try{await navigator.clipboard.writeText(text);toast("提出文をコピーしました")}catch(e){prompt("この文章をコピーしてください",text)}
+};
+
+// timer
+let remain=60, timerId=null;
+const timer=document.getElementById("timer"), sel=document.getElementById("timeSelect");
+function showTime(){timer.textContent=`${String(Math.floor(remain/60)).padStart(2,"0")}:${String(remain%60).padStart(2,"0")}`}
+sel.onchange=()=>{clearInterval(timerId);timerId=null;remain=+sel.value;showTime();}
+document.getElementById("startTimer").onclick=()=>{
+  if(timerId){clearInterval(timerId);timerId=null;document.getElementById("startTimer").textContent="開始";return}
+  document.getElementById("startTimer").textContent="一時停止";
+  timerId=setInterval(()=>{
+    remain--;showTime();
+    if(remain<=0){clearInterval(timerId);timerId=null;document.getElementById("startTimer").textContent="開始";navigator.vibrate?.(200);toast("終了！ 次のポーズへ");remain=+sel.value;setTimeout(showTime,900);}
+  },1000);
+};
+document.getElementById("resetTimer").onclick=()=>{clearInterval(timerId);timerId=null;remain=+sel.value;showTime();document.getElementById("startTimer").textContent="開始";}
+showTime();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+}
+</script>
+</body>
+</html>
