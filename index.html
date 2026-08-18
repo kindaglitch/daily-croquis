@@ -37,7 +37,35 @@ button.done,.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
 .task{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}.task:last-child{border:0}.task input{width:22px;height:22px}
 textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:12px;padding:11px;font:inherit}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.timer{font-size:44px;font-weight:750;font-variant-numeric:tabular-nums}.privacy{background:#f0f0eb;padding:11px;border-radius:12px;font-size:12px;line-height:1.55}
+.timer{font-size:44px;font-weight:750;font-variant-numeric:tabular-nums}
+.floating-timer{
+ position:fixed;right:18px;bottom:18px;z-index:80;
+ background:rgba(25,25,25,.92);color:#fff;
+ border-radius:16px;padding:12px 16px;
+ box-shadow:0 8px 28px rgba(0,0,0,.22);
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+ min-width:132px;text-align:center;
+}
+.floating-timer .timer{font-size:36px;line-height:1}
+.floating-timer .timer-label{font-size:11px;opacity:.75;margin-bottom:4px}
+@media(max-width:520px){
+ .floating-timer{right:10px;bottom:10px;padding:10px 12px;min-width:112px}
+ .floating-timer .timer{font-size:30px}
+}
+.timer-modal{
+ position:fixed;inset:0;z-index:120;display:none;
+ align-items:center;justify-content:center;
+ background:rgba(0,0,0,.32);
+}
+.timer-modal.show{display:flex}
+.timer-modal-card{
+ background:#fff;color:#191919;border-radius:22px;
+ padding:28px 34px;box-shadow:0 18px 50px rgba(0,0,0,.28);
+ text-align:center;max-width:82vw
+}
+.timer-modal-card b{font-size:26px;display:block;margin-bottom:8px}
+.timer-modal-card span{font-size:14px;color:#74746e}
+.privacy{background:#f0f0eb;padding:11px;border-radius:12px;font-size:12px;line-height:1.55}
 .history{max-height:250px;overflow:auto}.hist{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0;font-size:12px}
 .toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#191919;color:#fff;padding:10px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1}
 details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--muted);line-height:1.55;margin-top:10px}
@@ -81,11 +109,6 @@ details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--mut
 
 <aside>
 <section class="card">
- <h2>タイマー</h2><div class="timer" id="timer">01:00</div>
- <div class="row"><select id="timerSel"><option value="30">30秒</option><option value="60" selected>1分</option><option value="120">2分</option><option value="300">5分</option></select><button class="primary" id="timerBtn">開始</button><button id="reset">リセット</button></div>
-</section>
-
-<section class="card">
  <h2>プライバシー</h2>
  <div class="privacy"><b>あなたの絵は公開されません。</b><br>このアプリは描いた画像をアップロードしません。チェック・メモ・履歴はこの端末のブラウザ内だけに保存します。GitHub Pagesにあるのはアプリのコードだけです。</div>
 </section>
@@ -96,9 +119,30 @@ details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--mut
  <div class="footer">動き 25 / 比率 20 / 立体感 20 / 重心・接地 15 / 簡略化 10 / 線 10</div>
 </section>
 
+
+<section class="card">
+ <h2>採点を登録</h2>
+ <small>ChatGPTが返した「64|短いコメント」の形式を貼り付け</small>
+ <div class="row" style="margin-top:9px">
+  <input id="gradeInput" placeholder="64|動きの一本線を先に取る" style="flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit">
+  <button class="primary" id="gradeSave">登録</button>
+ </div>
+ <div class="footer">採点結果もこの端末内だけに保存されます。</div>
+</section>
+
 <section class="card"><h2>履歴</h2><div class="history" id="history"></div></section>
 </aside>
 </div></div>
+<div class="floating-timer" id="floatingTimer">
+ <div class="timer-label" id="timerLabel">待機中</div>
+ <div class="timer" id="timer">00:00</div>
+</div>
+<div class="timer-modal" id="timerModal">
+ <div class="timer-modal-card">
+  <b>終了！</b>
+  <span id="timerModalText">このポーズは完了です</span>
+ </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -122,7 +166,7 @@ document.getElementById("focus").textContent=c.focus;
 document.getElementById("dayNo").textContent=`Day ${cycle}`;
 
 let S=JSON.parse(localStorage.getItem("dailyCroquisV2")||'{"days":{}}');
-if(!S.days[K])S.days[K]={poses:Array(6).fill(false),note:"",saved:false};
+if(!S.days[K])S.days[K]={poses:Array(6).fill(false),note:"",saved:false,score:null,comment:""};
 const TIMES=[30,30,60,60,120,300];
 const LABEL=["30秒","30秒","1分","1分","2分","5分"];
 const INS=[
@@ -155,16 +199,20 @@ async function loadPoses(){
   el.innerHTML=`<div class="imagewrap"><div class="loading">参考写真を取得中…</div></div>
    <div class="posebody"><div class="posehead"><b>Pose ${i+1}</b><span class="time">${LABEL[i]}</span></div>
    <div class="instruction">${INS[i]}</div><div class="credit"></div>
-   <div class="pose-actions"><button class="doneBtn">${S.days[K].poses[i]?"完了 ✓":"描いた"}</button><button class="sourceBtn" disabled>出典</button></div></div>`;
+   <div class="pose-actions"><button class="doneBtn">${S.days[K].poses[i]?"完了 ✓":"スタート"}</button><button class="sourceBtn" disabled>出典</button></div></div>`;
   box.appendChild(el);
   const doneBtn=el.querySelector(".doneBtn");
   doneBtn.classList.toggle("done",S.days[K].poses[i]);
   doneBtn.onclick=()=>{
-    S.days[K].poses[i]=!S.days[K].poses[i];
-    saveState();
-    renderStats();
-    doneBtn.textContent=S.days[K].poses[i]?"完了 ✓":"描いた";
-    doneBtn.classList.toggle("done",S.days[K].poses[i]);
+    if(S.days[K].poses[i]){
+      S.days[K].poses[i]=false;
+      saveState();
+      renderStats();
+      doneBtn.textContent="スタート";
+      doneBtn.classList.remove("done");
+      return;
+    }
+    startPoseTimer(i, doneBtn);
   };
   try{
     const q=c.q[i%c.q.length], off=(hash(K+"-"+i)%3)*10;
@@ -197,17 +245,82 @@ function renderStats(){
  document.getElementById("bar").style.width=`${(a/6)*100}%`;
  document.getElementById("streak").textContent=`🔥 ${streak()}日連続`;
 }
-function hist(){let e=document.getElementById("history"),v=Object.entries(S.days).filter(x=>x[1].saved).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);e.innerHTML=v.length?"":"<small>まだありません</small>";v.forEach(([k,r])=>{let d=document.createElement("div");d.className="hist";d.innerHTML=`<span>${k}</span><span>${r.poses.filter(Boolean).length}/6</span>`;e.appendChild(d)})}
-document.getElementById("note").value=S.days[K].note||"";
-document.getElementById("note").oninput=e=>{S.days[K].note=e.target.value;saveState()};
-document.getElementById("save").onclick=()=>{S.days[K].saved=true;S.days[K].note=document.getElementById("note").value;saveState();renderStats();hist();toast("保存しました")};
-document.getElementById("copy").onclick=async()=>{
- let r=S.days[K],t=`クロッキー採点お願いします。\\n${K} / Day ${cycle}\\nテーマ: ${c.title}\\n完了: ${r.poses.filter(Boolean).length}/6\\n振り返り: ${r.note||"なし"}\\n\\n動き25・比率20・立体感20・重心/接地15・簡略化10・線10で100点満点。最優先の改善点1つと明日の課題もお願いします。`;
- try{await navigator.clipboard.writeText(t);toast("提出文をコピーしました")}catch{prompt("コピーしてください",t)}
+function hist(){
+ let e=document.getElementById("history");
+ let v=Object.entries(S.days).filter(x=>x[1].saved||x[1].score!=null).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
+ e.innerHTML=v.length?"":"<small>まだありません</small>";
+ v.forEach(([k,r])=>{
+   let d=document.createElement("div");
+   d.className="hist";
+   const score=r.score!=null?`${r.score}点`:`${r.poses.filter(Boolean).length}/6`;
+   d.innerHTML=`<span><b>${k}</b>${r.comment?`<br><small>${r.comment}</small>`:""}</span><span>${score}</span>`;
+   e.appendChild(d);
+ });
 };
-let rem=60,id=null;const tm=document.getElementById("timer"),sel=document.getElementById("timerSel"),show=()=>tm.textContent=`${String(Math.floor(rem/60)).padStart(2,"0")}:${String(rem%60).padStart(2,"0")}`;
-sel.onchange=()=>{clearInterval(id);id=null;rem=+sel.value;show()};
-document.getElementById("timerBtn").onclick=()=>{if(id){clearInterval(id);id=null;return}id=setInterval(()=>{rem--;show();if(rem<=0){clearInterval(id);id=null;navigator.vibrate?.(150);toast("終了！");rem=+sel.value;setTimeout(show,900)}},1000)};
+
+document.getElementById("gradeSave").onclick=()=>{
+ const raw=document.getElementById("gradeInput").value.trim();
+ const m=raw.match(/^(\d{1,3})\s*\|\s*(.+)$/);
+ if(!m){toast("形式は 64|短いコメント");return}
+ const score=Number(m[1]);
+ if(score<0||score>100){toast("点数は0〜100");return}
+ S.days[K].score=score;
+ S.days[K].comment=m[2].trim();
+ S.days[K].saved=true;
+ saveState();
+ hist();
+ document.getElementById("gradeInput").value="";
+ toast("採点を登録しました");
+};
+
+let rem=0,id=null,currentPose=null,currentButton=null;
+const tm=document.getElementById("timer");
+const timerLabel=document.getElementById("timerLabel");
+const timerModal=document.getElementById("timerModal");
+const timerModalText=document.getElementById("timerModalText");
+
+function show(){
+ tm.textContent=`${String(Math.floor(rem/60)).padStart(2,"0")}:${String(rem%60).padStart(2,"0")}`;
+}
+
+function finishPoseTimer(){
+ clearInterval(id); id=null;
+ if(currentPose===null) return;
+ S.days[K].poses[currentPose]=true;
+ saveState();
+ renderStats();
+ if(currentButton){
+   currentButton.textContent="完了 ✓";
+   currentButton.classList.add("done");
+ }
+ timerLabel.textContent=`Pose ${currentPose+1} 完了`;
+ rem=0; show();
+ navigator.vibrate?.([120,80,120]);
+ timerModalText.textContent=`Pose ${currentPose+1} は完了です`;
+ timerModal.classList.add("show");
+ setTimeout(()=>timerModal.classList.remove("show"),1600);
+ currentPose=null; currentButton=null;
+}
+
+function startPoseTimer(i, btn){
+ if(id){
+   clearInterval(id);
+   id=null;
+ }
+ currentPose=i;
+ currentButton=btn;
+ rem=TIMES[i];
+ timerLabel.textContent=`Pose ${i+1} / ${LABEL[i]}`;
+ show();
+ btn.textContent="計測中…";
+ btn.classList.add("done");
+ id=setInterval(()=>{
+   rem--;
+   show();
+   if(rem<=0) finishPoseTimer();
+ },1000);
+}
+show();if(rem<=0){clearInterval(id);id=null;navigator.vibrate?.(150);toast("終了！");rem=+sel.value;setTimeout(show,900)}},1000)};
 document.getElementById("reset").onclick=()=>{clearInterval(id);id=null;rem=+sel.value;show()};show();
 renderStats();hist();loadPoses();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
