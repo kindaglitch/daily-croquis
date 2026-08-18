@@ -1,13 +1,5 @@
-# Daily Croquis
+# Daily Croquis v2
+Wikimedia Commonsの公開ライセンス付き人物写真を日替わりで取得するクロッキーPWA。
 
-iPad向けの毎日クロッキー練習PWA。
-
-## GitHub Pages
-Repository Settings → Pages → Deploy from a branch → `main` / `(root)` を選択。
-
-公開後、iPadのSafariでページを開き、
-共有 → 「ホーム画面に追加」→「追加」でインストールできます。
-
-- ホーム画面からstandalone起動
-- オフライン対応
-- 練習記録は端末のlocalStorageに保存
+## Privacy
+描画画像をアップロードする機能はありません。練習記録・メモは端末のlocalStorageにのみ保存されます。

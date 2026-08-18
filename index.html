@@ -11,331 +11,200 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Daily Croquis</title>
 <style>
-:root{
-  --bg:#f7f7f3; --card:#ffffff; --ink:#191919; --muted:#6f6f6a;
-  --line:#deded7; --accent:#191919; --soft:#eeeeea;
-}
+:root{--bg:#f7f7f3;--card:#fff;--ink:#191919;--muted:#74746e;--line:#deded7;--soft:#eeeeea}
 *{box-sizing:border-box}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
-}
-.wrap{max-width:980px;margin:0 auto;padding:22px 16px 80px}
-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
-h1{font-size:30px;line-height:1.05;margin:0 0 6px}
-.sub{color:var(--muted);font-size:14px}
-.badge{background:var(--ink);color:white;border-radius:999px;padding:8px 12px;font-size:13px;white-space:nowrap}
-.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}
-@media(max-width:760px){.grid{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
-.card h2{font-size:17px;margin:0 0 12px}
-.kpi{display:flex;gap:10px;flex-wrap:wrap}
-.kpi .pill{background:var(--soft);border-radius:12px;padding:10px 12px;min-width:110px}
-.pill b{display:block;font-size:20px}
-.pill span{font-size:12px;color:var(--muted)}
-.progress{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin:12px 0 4px}
-.bar{height:100%;background:var(--ink);width:0%}
-.pose-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media(max-width:680px){.pose-grid{grid-template-columns:1fr 1fr}}
-.pose{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fbfbf8}
-.pose canvas{width:100%;aspect-ratio:3/4;background:white;border-radius:10px;display:block}
-.pose .meta{display:flex;justify-content:space-between;gap:6px;margin-top:8px;font-size:12px;color:var(--muted)}
-.pose button,.btn{
-  border:1px solid var(--line);background:white;color:var(--ink);
-  border-radius:10px;padding:9px 11px;font-weight:600;
-}
-.pose button.done{background:var(--ink);color:white;border-color:var(--ink)}
-.tasks{display:grid;gap:9px}
-.task{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.task:last-child{border-bottom:0}
-.task input{width:22px;height:22px}
-textarea{width:100%;min-height:92px;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;resize:vertical}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.btn.primary{background:var(--ink);color:white;border-color:var(--ink)}
-.score{display:grid;grid-template-columns:1fr 56px;gap:8px 10px;align-items:center}
-.score input{width:56px;padding:8px;border:1px solid var(--line);border-radius:9px}
-small{color:var(--muted)}
-.history{display:grid;gap:8px;max-height:260px;overflow:auto}
-.hist{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#191919;color:white;padding:10px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s}
-.toast.show{opacity:1}
-.timer{font-size:42px;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:-1px}
-select{padding:9px;border:1px solid var(--line);border-radius:10px;background:white}
-.footer-note{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.6}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:20px 15px 90px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:15px}
+h1{font-size:30px;margin:0 0 5px;line-height:1}
+.sub,small{color:var(--muted);font-size:12px}.badge{background:var(--ink);color:#fff;border-radius:999px;padding:8px 12px;font-size:13px}
+.grid{display:grid;grid-template-columns:1.42fr .58fr;gap:14px}@media(max-width:780px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px}
+.card h2{font-size:17px;margin:0 0 11px}
+.kpi{display:flex;gap:8px;flex-wrap:wrap}.pill{background:var(--soft);padding:10px 12px;border-radius:12px;min-width:105px}.pill b{font-size:20px;display:block}.pill span{font-size:11px;color:var(--muted)}
+.progress{height:9px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:11px}.bar{height:100%;background:var(--ink);width:0}
+.theme{font-size:24px;font-weight:750;letter-spacing:-.3px}.focus{margin-top:5px;color:var(--muted);line-height:1.5}
+.pose-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}@media(max-width:520px){.pose-grid{grid-template-columns:1fr}}
+.pose{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#fbfbf8}
+.imagewrap{position:relative;aspect-ratio:3/4;background:#e9e9e4;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.imagewrap img{width:100%;height:100%;object-fit:cover;display:block}
+.loading{color:var(--muted);font-size:13px;text-align:center;padding:20px}
+.posebody{padding:10px}.posehead{display:flex;justify-content:space-between;align-items:center;gap:8px}.time{font-weight:750}
+.instruction{font-size:13px;margin:7px 0 9px;line-height:1.45}.credit{font-size:10px;color:var(--muted);min-height:24px}.credit a{color:inherit}
+button,.btn,select{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff;color:var(--ink);font:inherit;font-weight:650}
+button.done,.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pose-actions{display:flex;gap:7px;margin-top:8px}.pose-actions button{flex:1}
+.task{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}.task:last-child{border:0}.task input{width:22px;height:22px}
+textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:12px;padding:11px;font:inherit}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.timer{font-size:44px;font-weight:750;font-variant-numeric:tabular-nums}.privacy{background:#f0f0eb;padding:11px;border-radius:12px;font-size:12px;line-height:1.55}
+.history{max-height:250px;overflow:auto}.hist{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0;font-size:12px}
+.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#191919;color:#fff;padding:10px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1}
+details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--muted);line-height:1.55;margin-top:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <div>
-    <h1>Daily Croquis</h1>
-    <div class="sub" id="todayLabel"></div>
-  </div>
-  <div class="badge" id="streakBadge">🔥 0日連続</div>
+ <div><h1>Daily Croquis</h1><div class="sub" id="dateLabel"></div></div>
+ <div class="badge" id="streak">🔥 0日連続</div>
 </header>
 
 <div class="grid">
-  <main>
-    <section class="card">
-      <h2>今日の進捗</h2>
-      <div class="kpi">
-        <div class="pill"><b id="doneCount">0 / 6</b><span>ポーズ完了</span></div>
-        <div class="pill"><b id="taskCount">0 / 4</b><span>チェック項目</span></div>
-        <div class="pill"><b id="totalDays">0</b><span>練習日数</span></div>
-      </div>
-      <div class="progress"><div class="bar" id="progressBar"></div></div>
-      <small>今日は全部やらなくてもOK。継続を優先。</small>
-    </section>
+<main>
+<section class="card">
+ <h2>今日のテーマ</h2>
+ <div class="theme" id="theme"></div>
+ <div class="focus" id="focus"></div>
+ <div class="kpi" style="margin-top:12px">
+  <div class="pill"><b id="done">0 / 6</b><span>ポーズ完了</span></div>
+  <div class="pill"><b id="checks">0 / 4</b><span>チェック</span></div>
+  <div class="pill"><b id="dayNo">Day 1</b><span>カリキュラム</span></div>
+ </div>
+ <div class="progress"><div class="bar" id="bar"></div></div>
+</section>
 
-    <section class="card" style="margin-top:14px">
-      <h2>今日のポーズ 6枚</h2>
-      <div class="pose-grid" id="poseGrid"></div>
-      <div class="footer-note">
-        ポーズは日付から自動生成され、毎日変わります。30秒→1分→2分→5分の順で、輪郭より「重心・背骨・肩と骨盤・立体」を優先してください。
-      </div>
-    </section>
+<section class="card">
+ <h2>今日の参考ポーズ</h2>
+ <div class="pose-grid" id="poses"></div>
+ <div class="footer">参考写真はWikimedia Commonsの検索結果から日ごとに選びます。各写真の出典・ライセンスは「出典」で確認できます。検索できない場合は簡易ポーズ表示に切り替わります。</div>
+</section>
 
-    <section class="card" style="margin-top:14px">
-      <h2>今日のチェック</h2>
-      <div class="tasks" id="tasks"></div>
-    </section>
+<section class="card">
+ <h2>今日のチェック</h2><div id="tasks"></div>
+</section>
 
-    <section class="card" style="margin-top:14px">
-      <h2>振り返り</h2>
-      <textarea id="note" placeholder="例：肩と骨盤の傾きが同じになりがち。明日は重心を先に取る。"></textarea>
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="saveBtn">今日を保存</button>
-        <button class="btn" id="copyBtn">提出文をコピー</button>
-      </div>
-      <div class="footer-note">
-        「提出文をコピー」→ このチャットに貼り付け → 描いた画像も添付、でOKです。
-      </div>
-    </section>
-  </main>
+<section class="card">
+ <h2>振り返り</h2>
+ <textarea id="note" placeholder="今日いちばん難しかったことを1つだけ。"></textarea>
+ <div class="row" style="margin-top:9px">
+  <button class="primary" id="save">今日を保存</button>
+  <button id="copy">ChatGPT提出文をコピー</button>
+ </div>
+</section>
+</main>
 
-  <aside>
-    <section class="card">
-      <h2>クロッキータイマー</h2>
-      <div class="timer" id="timer">01:00</div>
-      <div class="row">
-        <select id="timeSelect">
-          <option value="30">30秒</option>
-          <option value="60" selected>1分</option>
-          <option value="120">2分</option>
-          <option value="300">5分</option>
-        </select>
-        <button class="btn primary" id="startTimer">開始</button>
-        <button class="btn" id="resetTimer">リセット</button>
-      </div>
-    </section>
+<aside>
+<section class="card">
+ <h2>タイマー</h2><div class="timer" id="timer">01:00</div>
+ <div class="row"><select id="timerSel"><option value="30">30秒</option><option value="60" selected>1分</option><option value="120">2分</option><option value="300">5分</option></select><button class="primary" id="timerBtn">開始</button><button id="reset">リセット</button></div>
+</section>
 
-    <section class="card" style="margin-top:14px">
-      <h2>採点基準 / 100点</h2>
-      <div class="score">
-        <label>動き・ジェスチャー <small>/25</small></label><input disabled value="25">
-        <label>比率 <small>/20</small></label><input disabled value="20">
-        <label>立体感 <small>/20</small></label><input disabled value="20">
-        <label>重心・接地 <small>/15</small></label><input disabled value="15">
-        <label>簡略化 <small>/10</small></label><input disabled value="10">
-        <label>線の迷いの少なさ <small>/10</small></label><input disabled value="10">
-      </div>
-      <div class="footer-note">
-        送ってくれた絵はこの6項目で採点します。点数だけでなく「最優先で直す1点」「次回の練習課題」まで返します。
-      </div>
-    </section>
+<section class="card">
+ <h2>プライバシー</h2>
+ <div class="privacy"><b>あなたの絵は公開されません。</b><br>このアプリは描いた画像をアップロードしません。チェック・メモ・履歴はこの端末のブラウザ内だけに保存します。GitHub Pagesにあるのはアプリのコードだけです。</div>
+</section>
 
-    <section class="card" style="margin-top:14px">
-      <h2>履歴</h2>
-      <div class="history" id="history"></div>
-    </section>
-  </aside>
-</div>
-</div>
-<div class="toast" id="toast">保存しました</div>
+<section class="card">
+ <h2>採点 / 100</h2>
+ <small>ChatGPTに絵を送ったときの共通基準</small>
+ <div class="footer">動き 25 / 比率 20 / 立体感 20 / 重心・接地 15 / 簡略化 10 / 線 10</div>
+</section>
+
+<section class="card"><h2>履歴</h2><div class="history" id="history"></div></section>
+</aside>
+</div></div>
+<div class="toast" id="toast"></div>
 
 <script>
-const POSE_COUNT = 6;
-const TASKS = [
-  "ウォームアップを5分した",
-  "輪郭より先に動きの線を取った",
-  "肩と骨盤の傾きを意識した",
-  "最後に1体、資料を閉じて描いた"
+const CURRICULUM=[
+ {a:1,b:7,title:"ジェスチャーと重心",focus:"輪郭ではなく、頭から足まで流れる一本の動きを最初に取る。",q:["standing full body person pose","walking person full body","dancer full body pose"]},
+ {a:8,b:14,title:"胸郭と骨盤",focus:"胸郭を卵、骨盤を箱として捉え、向きと傾きの差を見る。",q:["full body person twist pose","dancer torso twist","standing contrapposto person"]},
+ {a:15,b:21,title:"人体比率",focus:"頭身、肩幅、肘・手首・膝の高さを観察する。",q:["standing full body portrait","full length person standing","human full body pose"]},
+ {a:22,b:30,title:"手足と短縮",focus:"腕脚を円柱として捉え、画面手前に来る部分の短縮を観察する。",q:["dynamic dancer foreshortening","person reaching full body","athlete dynamic pose"]},
+ {a:31,b:45,title:"ひねりと奥行き",focus:"肩と骨盤を別々の立体として回転させ、体の前後関係を見る。",q:["dance twist full body","dynamic human pose twist","person turning full body"]},
+ {a:46,b:60,title:"動きの強いポーズ",focus:"正確さだけでなく、ポーズの勢いを誇張せず短時間で残す。",q:["dancer jump full body","athlete action full body","dynamic dance pose"]}
 ];
+const START_KEY="dailyCroquisStart";
+const TODAY=new Date(), ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const K=ymd(TODAY);
+if(!localStorage.getItem(START_KEY))localStorage.setItem(START_KEY,K);
+const start=new Date(localStorage.getItem(START_KEY)+"T00:00:00"), day=Math.max(1,Math.floor((TODAY-start)/86400000)+1), cycle=((day-1)%60)+1;
+const c=CURRICULUM.find(x=>cycle>=x.a&&cycle<=x.b)||CURRICULUM[0];
+document.getElementById("dateLabel").textContent=`${TODAY.getFullYear()}年${TODAY.getMonth()+1}月${TODAY.getDate()}日`;
+document.getElementById("theme").textContent=c.title;
+document.getElementById("focus").textContent=c.focus;
+document.getElementById("dayNo").textContent=`Day ${cycle}`;
 
-const today = new Date();
-const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-const TODAY = ymd(today);
-document.getElementById("todayLabel").textContent =
-  `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+let S=JSON.parse(localStorage.getItem("dailyCroquisV2")||'{"days":{}}');
+if(!S.days[K])S.days[K]={poses:Array(6).fill(false),tasks:Array(4).fill(false),note:"",saved:false};
+const TIMES=[30,30,60,60,120,300];
+const LABEL=["30秒","30秒","1分","1分","2分","5分"];
+const INS=[
+ "一本のLine of Actionだけを最優先。",
+ "頭・胸郭・骨盤の位置を大きく取る。",
+ "肩と骨盤の傾きを比べる。",
+ "腕脚を線ではなく簡単な円柱として。",
+ "胸郭と骨盤の向きを立体で表す。",
+ "全身比率・重心・接地まで確認する。"
+];
+const TASK=["最初にLine of Actionを取った","肩と骨盤の傾きを確認した","輪郭を細かく追いすぎなかった","最後に1体、資料を閉じて描いた"];
+const saveState=()=>localStorage.setItem("dailyCroquisV2",JSON.stringify(S));
+function hash(s){let h=0;for(const ch of s)h=(Math.imul(31,h)+ch.charCodeAt(0))|0;return Math.abs(h)}
+function toast(t){let e=document.getElementById("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1500)}
 
-function hashCode(s){
-  let h=2166136261>>>0;
-  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); }
-  return h>>>0;
+async function commonsSearch(query, offset){
+ const url=new URL("https://commons.wikimedia.org/w/api.php");
+ url.search=new URLSearchParams({
+   action:"query",generator:"search",gsrsearch:`${query} filetype:bitmap`,
+   gsrnamespace:"6",gsrlimit:"10",gsroffset:String(offset),
+   prop:"imageinfo",iiprop:"url|extmetadata",iiurlwidth:"700",
+   format:"json",origin:"*"
+ });
+ const r=await fetch(url); if(!r.ok)throw Error("fetch");
+ const j=await r.json(); return Object.values(j.query?.pages||{});
 }
-function rng(seed){
-  let t=seed>>>0;
-  return ()=>{ t += 0x6D2B79F5; let x=t; x=Math.imul(x^(x>>>15),x|1); x^=x+Math.imul(x^(x>>>7),x|61); return ((x^(x>>>14))>>>0)/4294967296; };
-}
-function getState(){
-  return JSON.parse(localStorage.getItem("dailyCroquis") || '{"days":{}}');
-}
-function saveState(s){ localStorage.setItem("dailyCroquis",JSON.stringify(s)); }
-let state=getState();
-if(!state.days[TODAY]) state.days[TODAY]={poses:Array(POSE_COUNT).fill(false),tasks:Array(TASKS.length).fill(false),note:"",saved:false};
-
-function drawPose(canvas, seed){
-  const ctx=canvas.getContext("2d");
-  const dpr=window.devicePixelRatio||1, w=300,h=400;
-  canvas.width=w*dpr; canvas.height=h*dpr; ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,w,h);
-  const R=rng(seed);
-  ctx.strokeStyle="#161616"; ctx.lineWidth=5; ctx.lineCap="round"; ctx.lineJoin="round";
-  ctx.fillStyle="#161616";
-
-  const cx=150+(R()-.5)*28, headY=62+(R()-.5)*10;
-  const lean=(R()-.5)*34;
-  const shoulderY=112+(R()-.5)*10, pelvisY=215+(R()-.5)*14;
-  const sx=70+(R()*16), px=48+(R()*16);
-  const shoulderTilt=(R()-.5)*28, pelvisTilt=(R()-.5)*24;
-
-  const head={x:cx+lean*.12,y:headY};
-  const neck={x:cx+lean*.28,y:92};
-  const shoulderL={x:cx-sx/2+lean*.35,y:shoulderY-shoulderTilt/2};
-  const shoulderR={x:cx+sx/2+lean*.35,y:shoulderY+shoulderTilt/2};
-  const pelvisL={x:cx-px/2+lean,y:pelvisY-pelvisTilt/2};
-  const pelvisR={x:cx+px/2+lean,y:pelvisY+pelvisTilt/2};
-  const pelvisC={x:(pelvisL.x+pelvisR.x)/2,y:(pelvisL.y+pelvisR.y)/2};
-
-  function limb(a,b,len1,len2,bend,side){
-    const baseAng=Math.atan2(b.y-a.y,b.x-a.x);
-    const ang1=baseAng + side*(0.35+R()*0.85) + (R()-.5)*.5;
-    const elbow={x:a.x+Math.cos(ang1)*len1,y:a.y+Math.sin(ang1)*len1};
-    const ang2=ang1 + bend*(0.45+R()*1.0);
-    const hand={x:elbow.x+Math.cos(ang2)*len2,y:elbow.y+Math.sin(ang2)*len2};
-    return [a,elbow,hand];
+async function loadPoses(){
+ const box=document.getElementById("poses");box.innerHTML="";
+ for(let i=0;i<6;i++){
+  const el=document.createElement("div");el.className="pose";
+  el.innerHTML=`<div class="imagewrap"><div class="loading">参考写真を取得中…</div></div>
+   <div class="posebody"><div class="posehead"><b>Pose ${i+1}</b><span class="time">${LABEL[i]}</span></div>
+   <div class="instruction">${INS[i]}</div><div class="credit"></div>
+   <div class="pose-actions"><button class="doneBtn">${S.days[K].poses[i]?"完了 ✓":"描いた"}</button><button class="sourceBtn" disabled>出典</button></div></div>`;
+  box.appendChild(el);
+  el.querySelector(".doneBtn").classList.toggle("done",S.days[K].poses[i]);
+  el.querySelector(".doneBtn").onclick=()=>{S.days[K].poses[i]=!S.days[K].poses[i];saveState();renderStats();loadPoses();};
+  try{
+    const q=c.q[i%c.q.length], off=(hash(K+"-"+i)%3)*10;
+    const pages=await commonsSearch(q,off);
+    const good=pages.filter(p=>p.imageinfo?.[0]?.thumburl);
+    if(!good.length)throw Error("none");
+    const p=good[hash(K+i)%good.length], info=p.imageinfo[0], m=info.extmetadata||{};
+    const img=document.createElement("img");img.src=info.thumburl;img.alt="クロッキー参考ポーズ";
+    const wrap=el.querySelector(".imagewrap");wrap.innerHTML="";wrap.appendChild(img);
+    const author=(m.Artist?.value||"Wikimedia Commons contributor").replace(/<[^>]*>/g,"");
+    const lic=(m.LicenseShortName?.value||"ライセンスは出典参照").replace(/<[^>]*>/g,"");
+    el.querySelector(".credit").textContent=`${author} / ${lic}`;
+    const sb=el.querySelector(".sourceBtn");sb.disabled=false;sb.onclick=()=>window.open(info.descriptionurl,"_blank");
+  }catch(err){
+    el.querySelector(".imagewrap").innerHTML=`<div class="loading">写真を取得できませんでした。<br>今日は動きの線を自由に1体描いてください。</div>`;
   }
-  function leg(a,side){
-    const ang1=Math.PI/2 + side*(R()-.5)*.75 + (R()-.5)*.35;
-    const knee={x:a.x+Math.cos(ang1)*78,y:a.y+Math.sin(ang1)*78};
-    const ang2=ang1 + side*(R()-.5)*.65;
-    const foot={x:knee.x+Math.cos(ang2)*78,y:knee.y+Math.sin(ang2)*78};
-    return [a,knee,foot];
-  }
-  const lArm=limb(shoulderL,{x:cx-80,y:170},58,55,(R()>.5?1:-1),-1);
-  const rArm=limb(shoulderR,{x:cx+80,y:170},58,55,(R()>.5?1:-1),1);
-  const lLeg=leg(pelvisL,-1), rLeg=leg(pelvisR,1);
-
-  function line(points){
-    ctx.beginPath(); ctx.moveTo(points[0].x,points[0].y);
-    points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke();
-  }
-  // head
-  ctx.beginPath(); ctx.arc(head.x,head.y,24,0,Math.PI*2); ctx.stroke();
-  // spine
-  line([neck,{x:cx+lean*.62,y:165},pelvisC]);
-  line([shoulderL,shoulderR]); line([pelvisL,pelvisR]);
-  line(lArm); line(rArm); line(lLeg); line(rLeg);
-  // joints
-  [lArm[1],rArm[1],lLeg[1],rLeg[1]].forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill()});
-  // line of action hint
-  ctx.save(); ctx.strokeStyle="#b7b7af"; ctx.lineWidth=2; ctx.setLineDash([6,6]);
-  ctx.beginPath(); ctx.moveTo(head.x,head.y+28); ctx.quadraticCurveTo(cx+lean*.45,160,pelvisC.x,pelvisC.y+105); ctx.stroke();
-  ctx.restore();
-}
-
-const poseGrid=document.getElementById("poseGrid");
-function renderPoses(){
-  poseGrid.innerHTML="";
-  const times=["30秒","30秒","1分","1分","2分","5分"];
-  for(let i=0;i<POSE_COUNT;i++){
-    const div=document.createElement("div"); div.className="pose";
-    const c=document.createElement("canvas");
-    div.appendChild(c);
-    const meta=document.createElement("div"); meta.className="meta";
-    meta.innerHTML=`<span>Pose ${i+1}</span><span>${times[i]}</span>`;
-    div.appendChild(meta);
-    const b=document.createElement("button");
-    b.textContent=state.days[TODAY].poses[i]?"完了 ✓":"描いた";
-    if(state.days[TODAY].poses[i]) b.classList.add("done");
-    b.onclick=()=>{state.days[TODAY].poses[i]=!state.days[TODAY].poses[i];saveState(state);renderAll();};
-    div.appendChild(b);
-    poseGrid.appendChild(div);
-    requestAnimationFrame(()=>drawPose(c,hashCode(TODAY+"-"+i)));
-  }
+ }
 }
 function renderTasks(){
-  const el=document.getElementById("tasks"); el.innerHTML="";
-  TASKS.forEach((t,i)=>{
-    const row=document.createElement("label"); row.className="task";
-    const inp=document.createElement("input"); inp.type="checkbox"; inp.checked=state.days[TODAY].tasks[i];
-    inp.onchange=()=>{state.days[TODAY].tasks[i]=inp.checked;saveState(state);renderStats();};
-    const sp=document.createElement("span"); sp.textContent=t;
-    row.append(inp,sp); el.appendChild(row);
-  });
+ const e=document.getElementById("tasks");e.innerHTML="";
+ TASK.forEach((t,i)=>{let l=document.createElement("label");l.className="task";l.innerHTML=`<input type="checkbox" ${S.days[K].tasks[i]?"checked":""}><span>${t}</span>`;l.querySelector("input").onchange=x=>{S.days[K].tasks[i]=x.target.checked;saveState();renderStats()};e.appendChild(l)})
 }
-function calcStreak(){
-  let s=0,d=new Date(today);
-  while(true){
-    const k=ymd(d), rec=state.days[k];
-    if(rec && rec.saved){s++; d.setDate(d.getDate()-1)} else break;
-  }
-  return s;
-}
+function streak(){let n=0,d=new Date(TODAY);while(true){let r=S.days[ymd(d)];if(r?.saved){n++;d.setDate(d.getDate()-1)}else break}return n}
 function renderStats(){
-  const rec=state.days[TODAY];
-  const pc=rec.poses.filter(Boolean).length, tc=rec.tasks.filter(Boolean).length;
-  document.getElementById("doneCount").textContent=`${pc} / ${POSE_COUNT}`;
-  document.getElementById("taskCount").textContent=`${tc} / ${TASKS.length}`;
-  document.getElementById("totalDays").textContent=Object.values(state.days).filter(x=>x.saved).length;
-  document.getElementById("progressBar").style.width=`${Math.round((pc+tc)/(POSE_COUNT+TASKS.length)*100)}%`;
-  document.getElementById("streakBadge").textContent=`🔥 ${calcStreak()}日連続`;
+ const r=S.days[K],a=r.poses.filter(Boolean).length,b=r.tasks.filter(Boolean).length;
+ document.getElementById("done").textContent=`${a} / 6`;document.getElementById("checks").textContent=`${b} / 4`;
+ document.getElementById("bar").style.width=`${(a+b)*10}%`;document.getElementById("streak").textContent=`🔥 ${streak()}日連続`;
 }
-function renderHistory(){
-  const el=document.getElementById("history"); el.innerHTML="";
-  const items=Object.entries(state.days).filter(([k,v])=>v.saved).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
-  if(!items.length){el.innerHTML="<small>まだ保存された練習日はありません。</small>";return;}
-  items.forEach(([k,v])=>{
-    const d=document.createElement("div"); d.className="hist";
-    d.innerHTML=`<span>${k}</span><span>${v.poses.filter(Boolean).length}/6 poses</span>`;
-    el.appendChild(d);
-  });
-}
-function renderAll(){renderPoses();renderTasks();renderStats();renderHistory();document.getElementById("note").value=state.days[TODAY].note||"";}
-renderAll();
-
-document.getElementById("note").addEventListener("input",e=>{state.days[TODAY].note=e.target.value;saveState(state)});
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)}
-document.getElementById("saveBtn").onclick=()=>{
-  state.days[TODAY].note=document.getElementById("note").value;
-  state.days[TODAY].saved=true; saveState(state); renderAll(); toast("今日の練習を保存しました");
+function hist(){let e=document.getElementById("history"),v=Object.entries(S.days).filter(x=>x[1].saved).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);e.innerHTML=v.length?"":"<small>まだありません</small>";v.forEach(([k,r])=>{let d=document.createElement("div");d.className="hist";d.innerHTML=`<span>${k}</span><span>${r.poses.filter(Boolean).length}/6</span>`;e.appendChild(d)})}
+document.getElementById("note").value=S.days[K].note||"";
+document.getElementById("note").oninput=e=>{S.days[K].note=e.target.value;saveState()};
+document.getElementById("save").onclick=()=>{S.days[K].saved=true;S.days[K].note=document.getElementById("note").value;saveState();renderStats();hist();toast("保存しました")};
+document.getElementById("copy").onclick=async()=>{
+ let r=S.days[K],t=`クロッキー採点お願いします。\\n${K} / Day ${cycle}\\nテーマ: ${c.title}\\n完了: ${r.poses.filter(Boolean).length}/6\\n振り返り: ${r.note||"なし"}\\n\\n動き25・比率20・立体感20・重心/接地15・簡略化10・線10で100点満点。最優先の改善点1つと明日の課題もお願いします。`;
+ try{await navigator.clipboard.writeText(t);toast("提出文をコピーしました")}catch{prompt("コピーしてください",t)}
 };
-document.getElementById("copyBtn").onclick=async()=>{
-  const r=state.days[TODAY];
-  const text=`クロッキー採点お願いします。\n日付: ${TODAY}\n完了ポーズ: ${r.poses.filter(Boolean).length}/6\nチェック: ${r.tasks.filter(Boolean).length}/${TASKS.length}\n振り返り: ${r.note||"なし"}\n\n採点基準：動き25 / 比率20 / 立体感20 / 重心・接地15 / 簡略化10 / 線10。100点満点で、最優先の改善点1つと次回課題もお願いします。`;
-  try{await navigator.clipboard.writeText(text);toast("提出文をコピーしました")}catch(e){prompt("この文章をコピーしてください",text)}
-};
-
-// timer
-let remain=60, timerId=null;
-const timer=document.getElementById("timer"), sel=document.getElementById("timeSelect");
-function showTime(){timer.textContent=`${String(Math.floor(remain/60)).padStart(2,"0")}:${String(remain%60).padStart(2,"0")}`}
-sel.onchange=()=>{clearInterval(timerId);timerId=null;remain=+sel.value;showTime();}
-document.getElementById("startTimer").onclick=()=>{
-  if(timerId){clearInterval(timerId);timerId=null;document.getElementById("startTimer").textContent="開始";return}
-  document.getElementById("startTimer").textContent="一時停止";
-  timerId=setInterval(()=>{
-    remain--;showTime();
-    if(remain<=0){clearInterval(timerId);timerId=null;document.getElementById("startTimer").textContent="開始";navigator.vibrate?.(200);toast("終了！ 次のポーズへ");remain=+sel.value;setTimeout(showTime,900);}
-  },1000);
-};
-document.getElementById("resetTimer").onclick=()=>{clearInterval(timerId);timerId=null;remain=+sel.value;showTime();document.getElementById("startTimer").textContent="開始";}
-showTime();
+let rem=60,id=null;const tm=document.getElementById("timer"),sel=document.getElementById("timerSel"),show=()=>tm.textContent=`${String(Math.floor(rem/60)).padStart(2,"0")}:${String(rem%60).padStart(2,"0")}`;
+sel.onchange=()=>{clearInterval(id);id=null;rem=+sel.value;show()};
+document.getElementById("timerBtn").onclick=()=>{if(id){clearInterval(id);id=null;return}id=setInterval(()=>{rem--;show();if(rem<=0){clearInterval(id);id=null;navigator.vibrate?.(150);toast("終了！");rem=+sel.value;setTimeout(show,900)}},1000)};
+document.getElementById("reset").onclick=()=>{clearInterval(id);id=null;rem=+sel.value;show()};show();
+renderTasks();renderStats();hist();loadPoses();
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
 </script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
-}
-</script>
-</body>
-</html>
+</body></html>
