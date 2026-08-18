@@ -1,5 +1,7 @@
-# Daily Croquis v2
-Wikimedia Commonsの公開ライセンス付き人物写真を日替わりで取得するクロッキーPWA。
+# Daily Croquis v3
 
-## Privacy
-描画画像をアップロードする機能はありません。練習記録・メモは端末のlocalStorageにのみ保存されます。
+- チェックリストを削除
+- 進捗は6ポーズだけ
+- 人物写真候補のフィルタを強化
+- 描いた画像のアップロード機能なし
+- 記録は端末のlocalStorageのみ

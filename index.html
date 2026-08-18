@@ -58,7 +58,6 @@ details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--mut
  <div class="focus" id="focus"></div>
  <div class="kpi" style="margin-top:12px">
   <div class="pill"><b id="done">0 / 6</b><span>ポーズ完了</span></div>
-  <div class="pill"><b id="checks">0 / 4</b><span>チェック</span></div>
   <div class="pill"><b id="dayNo">Day 1</b><span>カリキュラム</span></div>
  </div>
  <div class="progress"><div class="bar" id="bar"></div></div>
@@ -68,10 +67,6 @@ details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--mut
  <h2>今日の参考ポーズ</h2>
  <div class="pose-grid" id="poses"></div>
  <div class="footer">参考写真はWikimedia Commonsの検索結果から日ごとに選びます。各写真の出典・ライセンスは「出典」で確認できます。検索できない場合は簡易ポーズ表示に切り替わります。</div>
-</section>
-
-<section class="card">
- <h2>今日のチェック</h2><div id="tasks"></div>
 </section>
 
 <section class="card">
@@ -108,8 +103,8 @@ details{font-size:12px;color:var(--muted)}.footer{font-size:11px;color:var(--mut
 
 <script>
 const CURRICULUM=[
- {a:1,b:7,title:"ジェスチャーと重心",focus:"輪郭ではなく、頭から足まで流れる一本の動きを最初に取る。",q:["standing full body person pose","walking person full body","dancer full body pose"]},
- {a:8,b:14,title:"胸郭と骨盤",focus:"胸郭を卵、骨盤を箱として捉え、向きと傾きの差を見る。",q:["full body person twist pose","dancer torso twist","standing contrapposto person"]},
+ {a:1,b:7,title:"ジェスチャーと重心",focus:"輪郭ではなく、頭から足まで流れる一本の動きを最初に取る。",q:["full length standing woman photograph","full length standing man photograph","ballet dancer full body photograph"]},
+ {a:8,b:14,title:"胸郭と骨盤",focus:"胸郭を卵、骨盤を箱として捉え、向きと傾きの差を見る。",q:["ballet dancer standing photograph","dancer full length photograph","contrapposto model photograph"]},
  {a:15,b:21,title:"人体比率",focus:"頭身、肩幅、肘・手首・膝の高さを観察する。",q:["standing full body portrait","full length person standing","human full body pose"]},
  {a:22,b:30,title:"手足と短縮",focus:"腕脚を円柱として捉え、画面手前に来る部分の短縮を観察する。",q:["dynamic dancer foreshortening","person reaching full body","athlete dynamic pose"]},
  {a:31,b:45,title:"ひねりと奥行き",focus:"肩と骨盤を別々の立体として回転させ、体の前後関係を見る。",q:["dance twist full body","dynamic human pose twist","person turning full body"]},
@@ -127,7 +122,7 @@ document.getElementById("focus").textContent=c.focus;
 document.getElementById("dayNo").textContent=`Day ${cycle}`;
 
 let S=JSON.parse(localStorage.getItem("dailyCroquisV2")||'{"days":{}}');
-if(!S.days[K])S.days[K]={poses:Array(6).fill(false),tasks:Array(4).fill(false),note:"",saved:false};
+if(!S.days[K])S.days[K]={poses:Array(6).fill(false),note:"",saved:false};
 const TIMES=[30,30,60,60,120,300];
 const LABEL=["30秒","30秒","1分","1分","2分","5分"];
 const INS=[
@@ -138,7 +133,6 @@ const INS=[
  "胸郭と骨盤の向きを立体で表す。",
  "全身比率・重心・接地まで確認する。"
 ];
-const TASK=["最初にLine of Actionを取った","肩と骨盤の傾きを確認した","輪郭を細かく追いすぎなかった","最後に1体、資料を閉じて描いた"];
 const saveState=()=>localStorage.setItem("dailyCroquisV2",JSON.stringify(S));
 function hash(s){let h=0;for(const ch of s)h=(Math.imul(31,h)+ch.charCodeAt(0))|0;return Math.abs(h)}
 function toast(t){let e=document.getElementById("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1500)}
@@ -168,7 +162,14 @@ async function loadPoses(){
   try{
     const q=c.q[i%c.q.length], off=(hash(K+"-"+i)%3)*10;
     const pages=await commonsSearch(q,off);
-    const good=pages.filter(p=>p.imageinfo?.[0]?.thumburl);
+    const reject=/statue|sculpture|drawing|diagram|illustration|painting|logo|flag|map|skeleton|animal|dog|cat|horse|building|object|group|crowd|team/i;
+    const humanHint=/person|human|man|woman|male|female|dancer|dance|athlete|model|standing|walking|pose|jump|gymnast/i;
+    const good=pages.filter(p=>{
+      if(!p.imageinfo?.[0]?.thumburl) return false;
+      const info=p.imageinfo[0], m=info.extmetadata||{};
+      const hay=[p.title,m.ImageDescription?.value,m.Categories?.value,m.ObjectName?.value].filter(Boolean).join(" ").replace(/<[^>]*>/g," ");
+      return humanHint.test(hay) && !reject.test(hay);
+    });
     if(!good.length)throw Error("none");
     const p=good[hash(K+i)%good.length], info=p.imageinfo[0], m=info.extmetadata||{};
     const img=document.createElement("img");img.src=info.thumburl;img.alt="クロッキー参考ポーズ";
@@ -182,15 +183,12 @@ async function loadPoses(){
   }
  }
 }
-function renderTasks(){
- const e=document.getElementById("tasks");e.innerHTML="";
- TASK.forEach((t,i)=>{let l=document.createElement("label");l.className="task";l.innerHTML=`<input type="checkbox" ${S.days[K].tasks[i]?"checked":""}><span>${t}</span>`;l.querySelector("input").onchange=x=>{S.days[K].tasks[i]=x.target.checked;saveState();renderStats()};e.appendChild(l)})
-}
 function streak(){let n=0,d=new Date(TODAY);while(true){let r=S.days[ymd(d)];if(r?.saved){n++;d.setDate(d.getDate()-1)}else break}return n}
 function renderStats(){
- const r=S.days[K],a=r.poses.filter(Boolean).length,b=r.tasks.filter(Boolean).length;
- document.getElementById("done").textContent=`${a} / 6`;document.getElementById("checks").textContent=`${b} / 4`;
- document.getElementById("bar").style.width=`${(a+b)*10}%`;document.getElementById("streak").textContent=`🔥 ${streak()}日連続`;
+ const r=S.days[K],a=r.poses.filter(Boolean).length;
+ document.getElementById("done").textContent=`${a} / 6`;
+ document.getElementById("bar").style.width=`${(a/6)*100}%`;
+ document.getElementById("streak").textContent=`🔥 ${streak()}日連続`;
 }
 function hist(){let e=document.getElementById("history"),v=Object.entries(S.days).filter(x=>x[1].saved).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);e.innerHTML=v.length?"":"<small>まだありません</small>";v.forEach(([k,r])=>{let d=document.createElement("div");d.className="hist";d.innerHTML=`<span>${k}</span><span>${r.poses.filter(Boolean).length}/6</span>`;e.appendChild(d)})}
 document.getElementById("note").value=S.days[K].note||"";
@@ -204,7 +202,7 @@ let rem=60,id=null;const tm=document.getElementById("timer"),sel=document.getEle
 sel.onchange=()=>{clearInterval(id);id=null;rem=+sel.value;show()};
 document.getElementById("timerBtn").onclick=()=>{if(id){clearInterval(id);id=null;return}id=setInterval(()=>{rem--;show();if(rem<=0){clearInterval(id);id=null;navigator.vibrate?.(150);toast("終了！");rem=+sel.value;setTimeout(show,900)}},1000)};
 document.getElementById("reset").onclick=()=>{clearInterval(id);id=null;rem=+sel.value;show()};show();
-renderTasks();renderStats();hist();loadPoses();
+renderStats();hist();loadPoses();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
 </script>
 </body></html>
