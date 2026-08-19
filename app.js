@@ -4,7 +4,7 @@ import {
   normalizeStateForImport, mergeStates, selectDailyPoses, completedCount,
   calculateStreak, parseGrade, recentDayKeys
 } from "./core.js";
-import { POSE_LIBRARY, POSE_BY_ID, renderPoseSvg } from "./poses.js";
+import { POSE_LIBRARY, POSE_BY_ID, renderPoseOverlay } from "./poses.js";
 
 const $ = (id) => document.getElementById(id);
 const TODAY = new Date();
@@ -118,15 +118,18 @@ function chooseTodayPoses(extraRecent = []) {
 function ensureToday() {
   const today = day();
   if (today.poseIds.length < 6) today.poseIds = chooseTodayPoses();
-  const missingCustom = today.poseIds.filter((id) => customId(id) && !customById(id));
-  if (missingCustom.length) {
+  const missingReferences = today.poseIds.filter((id) => {
+    if (POSE_BY_ID.has(id)) return false;
+    return !customId(id) || !customById(id);
+  });
+  if (missingReferences.length) {
     const replacements = selectDailyPoses(POSE_LIBRARY, {
       dayKey: `${TODAY_KEY}:repair`, themeId: currentCurriculum.id,
       recentIds: [...recentPoseIds(), ...today.poseIds], customIds: [], mixCustom: false
     });
     let replacementIndex = 0;
     today.poseIds = today.poseIds.map((id) => {
-      if (!missingCustom.includes(id)) return id;
+      if (!missingReferences.includes(id)) return id;
       const replacement = replacements[replacementIndex++] || POSE_LIBRARY[replacementIndex]?.id;
       if (replacement && today.poseStats[id]?.completed) today.poseStats[replacement] = { ...today.poseStats[id] };
       return replacement || id;
@@ -168,7 +171,13 @@ function renderReference(container, id, overlay = false) {
     return;
   }
   const pose = POSE_BY_ID.get(id);
-  if (pose) container.append(renderPoseSvg(pose, { overlay, label: pose.title }));
+  if (!pose) return;
+  const img = new Image();
+  img.src = pose.image;
+  img.alt = pose.title;
+  img.decoding = "async";
+  container.append(img);
+  if (overlay) container.append(renderPoseOverlay(pose, `${pose.title}の構造分析`));
 }
 
 function renderHeader() {
@@ -208,7 +217,7 @@ function renderPoseGrid() {
     start.addEventListener("click", () => beginSession([{ id, slot: index }]));
     actions.append(start);
     if (!ref) {
-      const overlay = createElement("button", "button", stats.completed ? "構造を見る" : "完了後に構造");
+      const overlay = createElement("button", "button", stats.completed ? "構造を答え合わせ" : "完了後に答え合わせ");
       overlay.type = "button";
       overlay.disabled = !stats.completed;
       overlay.addEventListener("click", () => {
@@ -216,7 +225,7 @@ function renderPoseGrid() {
         renderReference(visual, id, !shown);
         if (stats.completed) visual.append(createElement("span", "pose-complete", "完了 ✓"));
         overlay.dataset.shown = String(!shown);
-        overlay.textContent = shown ? "構造を見る" : "構造を隠す";
+        overlay.textContent = shown ? "構造を答え合わせ" : "構造を隠す";
       });
       actions.append(overlay);
     }
@@ -426,7 +435,7 @@ function updateSessionVisual() {
   renderReference($("sessionVisual"), entry.id, sessionOverlay);
   const completed = Boolean(day().poseStats[entry.id]?.completed);
   $("toggleOverlay").hidden = Boolean(ref) || !completed;
-  $("toggleOverlay").textContent = sessionOverlay ? "構造線を隠す" : "構造線を表示";
+  $("toggleOverlay").textContent = sessionOverlay ? "構造線を隠す" : "構造を答え合わせ";
   $("pauseSession").hidden = state.session.phase === "finished" || state.session.phase === "complete";
   $("restartPose").hidden = state.session.phase === "finished";
   $("skipPose").hidden = state.session.phase === "finished";
