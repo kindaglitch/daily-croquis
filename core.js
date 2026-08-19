@@ -1,4 +1,4 @@
-export const APP_VERSION = "5.0.0";
+export const APP_VERSION = "5.1.0";
 export const STORE_KEY = "dailyCroquisV5";
 
 export const CURRICULUM = [
@@ -13,12 +13,12 @@ export const CURRICULUM = [
 export const POSE_TIMES = [30, 30, 60, 60, 120, 300];
 export const POSE_LABELS = ["30秒", "30秒", "1分", "1分", "2分", "5分"];
 export const POSE_INSTRUCTIONS = [
-  "一本のLine of Actionを最優先。",
-  "頭・胸郭・骨盤を大きく置く。",
-  "肩と骨盤の傾きを比較する。",
-  "腕脚を線ではなく円柱で捉える。",
-  "胸郭と骨盤の向きを立体で表す。",
-  "全身比率・重心・接地まで確認する。"
+  "輪郭を追わず、頭から足への流れを自分で推測する。",
+  "見えない側も想像し、頭・胸郭・骨盤を大きく置く。",
+  "肩と骨盤を別の立体として傾きを比べる。",
+  "服の線ではなく、その内側の腕脚を円柱で捉える。",
+  "重なりから胸郭と骨盤の向きを推測する。",
+  "全身比率・重心・床への接地を最後に確認する。"
 ];
 
 export const AXES = ["動き", "比率", "立体感", "重心・接地", "簡略化", "線"];
