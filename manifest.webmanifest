@@ -1,10 +1,12 @@
 {
   "name": "Daily Croquis",
   "short_name": "Croquis",
-  "description": "毎日のクロッキー練習・記録アプリ",
+  "description": "オフライン参考ポーズ、集中タイマー、振り返りを備えた毎日のクロッキー練習アプリ",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "any",
+  "categories": ["education", "lifestyle"],
   "background_color": "#f7f7f3",
   "theme_color": "#f7f7f3",
   "icons": [
